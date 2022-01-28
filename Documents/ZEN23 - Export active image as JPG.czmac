@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Script Version="1.0">
+  <Language>Python</Language>
+  <Text>#######################################################
+## I M A G E   P R O C E S S I N G 
+##
+## Macro name: ZEN23 - Export active image as JPG
+##
+## Required files: Export as JPG.czips
+##
+## Required module/licence: no
+##
+## LOAD EXPORT SETTING, EXPORT ACTIVE IMAGE AS JPG
+##
+## Copyright (c) 2019 by Carl Zeiss Microscopy GmbH.
+## Permission is granted to use, modify and distribute this code,
+## as long as this copyright notice remains part of the code.
+#######################################################
+##
+##
+## EXPORT ACTIVE IMAGE TO JPG
+##
+## activate IO library
+from System.IO import File, Path
+##
+## define path and file name for default export setting
+wgDocs = Zen.Application.Environment.GetFolderPath(ZenSpecialFolder.WorkgroupDocuments)
+settingsFolder = '\\Processing Settings\\SingleFileExport'
+expSetPath = wgDocs + settingsFolder
+fileOrg = 'Export as JPG.czips'
+expSet = expSetPath + '\\' + fileOrg
+## check file existency (default setting for export)
+if File.Exists(expSet) == False:
+    strMessage = 'File: \n' + expSet + '\ndoes not exist!\nRestart macro and make sure that the file is in the folder!'
+    sys.exit(strMessage)
+##
+## get selected image
+image = Zen.Application.Documents.ActiveDocument
+## get image name as prefix
+imName = image.Name
+ext = Path.GetExtension(imName)
+if ext.IsNullOrEmpty(ext): 
+    prefix = imName
+else: 
+    prefix = Path.GetFileNameWithoutExtension(imName)
+## load setting
+functionsetting1 = Zen.Processing.Utilities.Settings.SingleFileExportSetting()
+functionsetting1.Load(expSet)
+## apply setting file to export
+Zen.Processing.Utilities.ExportSingleFile(image,functionsetting1,prefix)
+## Close image (otherwise it cannot be deleted in explorer)
+image.Close()
+## 
+#######################################################
+</Text>
+  <Author></Author>
+  <Description></Description>
+  <ApplicationName></ApplicationName>
+  <Keywords></Keywords>
+  <Row>8</Row>
+  <Column>31</Column>
+  <WatchVariables>
+    <Watch>prefix</Watch>
+  </WatchVariables>
+</Script>

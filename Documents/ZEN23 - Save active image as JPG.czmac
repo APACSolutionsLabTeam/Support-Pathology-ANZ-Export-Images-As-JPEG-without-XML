@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Script>
+  <Context>Zen26</Context>
+  <Version>1.0.0</Version>
+  <Language>Python</Language>
+  <Text>#######################################################
+## I M A G E 
+##
+## Macro name: ZEN 23 - Save active image as JPG
+## 
+## Required files: active image (with or without extension)
+##
+## BURN IN GRAPHICS, SAVE ACTIVE IMAGE IN AUTOSAVE FOLDER AS JPG,
+## DELETE XML FILE
+##
+## Copyright (c) 2019 by Carl Zeiss Microscopy GmbH.
+## Permission is granted to use, modify and distribute this code,
+## as long as this copyright notice remains part of the code.
+#######################################################
+##
+##
+## activate IO library
+from System.IO import File, Path
+##
+## Get autosave path for images
+AutoSavePath = Zen.Application.Environment.GetFolderPath(ZenSpecialFolder.ImageAutoSave)
+##
+## get selected image
+image = Zen.Application.Documents.ActiveDocument
+##
+## Define path and file
+imName = image.Name
+pathAndFile = Path.Combine(AutoSavePath,imName)
+## check, if image has extension
+ext = Path.GetExtension(pathAndFile)
+if ext.IsNullOrEmpty(ext): 
+    pathAndFileNew = Path.Combine(AutoSavePath,imName + '.JPG')
+else: 
+    WOext = Path.GetFileNameWithoutExtension(pathAndFile)
+    pathAndFileNew = Path.Combine(AutoSavePath,WOext + '.JPG')
+## Burn in graphics
+## Save image as JPG
+if image.Graphics.Count &gt; 0:
+    AnnoImage = image.BurnInGraphics()
+    Zen.Application.Save(AnnoImage, pathAndFileNew, False)
+else: 
+    Zen.Application.Save(image, pathAndFileNew, False)
+##
+## Delete XML file
+imName = image.Name
+pathAndFile = Path.Combine(AutoSavePath,imName + '_metadata' + '.XML')
+File.Delete(pathAndFile)
+##
+## Close image (otherwise it cannot be deleted in explorer)
+image.Close()
+##   
+#######################################################
+</Text>
+  <Author></Author>
+  <Description></Description>
+  <Keywords></Keywords>
+  <Row>1</Row>
+  <Column>1</Column>
+</Script>

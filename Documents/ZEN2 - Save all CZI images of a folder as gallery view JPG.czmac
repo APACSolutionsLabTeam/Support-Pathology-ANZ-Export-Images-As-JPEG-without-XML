@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Script Version="1.0">
+  <Language>Python</Language>
+  <Text>#######################################################
+## I M A G E 
+##
+## Macro name: ZEN2 - Save all CZI images of a folder as gallery view JPG
+##
+## Required demo files: 
+## 4C image 1.czi, 4C image 2.czi in C:\OAD\Input\CZI Images\Multichannel
+##
+## Required module/licence: no
+##
+## LOAD IMAGE, SHOW GALLERY VIEW, CLICK ON CREATE,
+## SAVE GALLERY VIEW IMAGE AS JPG
+##
+## Copyright (c) 2019 by Carl Zeiss Microscopy GmbH.
+## Permission is granted to use, modify and distribute this code,
+## as long as this copyright notice remains part of the code.
+#######################################################
+##
+##
+## Close all open images
+Zen.Application.Documents.RemoveAll()
+##
+## activate IO library
+from System.IO import File, Directory, FileInfo, Path
+##
+## define source path, destination path
+## define file type
+path = "C:\\OAD\\Input\\CZI Images\\Multichannel" 
+files = Directory.GetFiles(path,"*.czi") 
+##
+## loop over all images in the folder
+## display image, show gallery view
+## request to create an image
+## save the image as JPG
+for i in range(0,files.Length): 
+    file = files[i] 
+    fileInfo = FileInfo(file) 
+    PathAndFile = Path.Combine(path,fileInfo.Name)
+    image = Zen.Application.LoadImage(PathAndFile,False) 
+    Zen.Application.Documents.Add(image) 
+    ## Switch to Gallery View
+    imageViews = Zen.Application.DocumentViews.Find(image)
+    imageViews.ActiveViewType = ZenDocumentView.ImageGallery
+    ## Ask to click on Create to generate the image
+    Zen.Application.Pause('Click on the Create button on GalleryTools tab(ShowAll mode)\nto generate an image of the current view!\n\nThen click Continue!')
+    GalImage = Zen.Application.Documents.ActiveDocument
+    ## Save the gallery image as JPG
+    fileNameWE = image.Name.Substring(0,image.Name.Length-4)
+    newFileName = fileNameWE + '_gallery' + '.jpg'
+    newPathAndFile = Path.Combine("C:\\OAD\\Output\\JPG Images\\",newFileName)
+    Zen.Application.Save(GalImage,newPathAndFile)
+    ## Close image
+    image.Close()
+    GalImage.Close()
+##   
+#######################################################
+</Text>
+  <Author></Author>
+  <Description></Description>
+  <ApplicationName></ApplicationName>
+  <Keywords></Keywords>
+  <Row>10</Row>
+  <Column>3</Column>
+</Script>

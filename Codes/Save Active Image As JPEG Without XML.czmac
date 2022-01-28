@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Script>
+  <Context>Zen26</Context>
+  <Version>1.0</Version>
+  <Language>Python</Language>
+  <Text>##################################################################################
+## I M A G E 
+##
+## Macro name: Save active image as JPEG without metadata (XML)
+## 
+## Required files: Active image in ZEN 
+##
+## BURN IN GRAPHICS, SAVE ACTIVE IMAGE IN USER-DEFINED FOLDER AS JPEG WITHOUT XML
+##
+## Adapted by APAC Digital Solutions Team
+##
+## Copyright (c) 2021 by Carl Zeiss Microscopy GmbH.
+## Permission is granted to use, modify and distribute this code,
+## as long as this copyright notice remains part of the code.
+##################################################################################
+##
+##
+## Import required libraries
+from System.Diagnostics import Process
+from System.IO import File, Path, Directory, FileInfo
+import time
+import os
+import shutil
+##
+## Remove Macro Editor Messages
+Zen.Application.MacroEditor.ClearMessages()
+##
+## Get selected image
+image = Zen.Application.Documents.ActiveDocument
+## 
+## Get image information
+imName = image.Name
+time_series_num = image.Bounds.SizeT
+z_stack_num = image.Bounds.SizeZ
+num_scenes = image.Bounds.SizeS
+## Define the path to save the images - displayed in GUI which the user can modify
+ImageFilesDir = r'C:\Users\Public\Pictures'
+## Define the GUI window
+ZenGUI=ZenWindow()
+ZenGUI.AddLabel('Select the directory to save the image')
+ZenGUI.AddFolderBrowser('SaveFolder', 'ImageFiles Folder', ImageFilesDir)
+ZenGUI.AddTextBox('ImageName', 'Enter Image Name', os.path.splitext(imName)[0])
+Results=ZenGUI.Show()
+SaveFolder=Results.GetValue('SaveFolder')
+ImageName = Results.GetValue('ImageName')
+ImageNameNoExtension = os.path.splitext(ImageName)[0]
+## Print message if the macro is cancelled
+if Results.HasCanceled:
+    message = 'Macro was canceled by user.'
+    Zen.Application.Pause(message)
+    print(message)
+    raise SystemExit
+else:
+   ## Define the processing settings for exporting the image as JEPG
+   name = ImageNameNoExtension
+   processingsetting = Zen.Processing.Utilities.Settings.SingleFileExportSetting(ZenExportFileType.JPEG)
+   processingsetting.ShiftPixel = True
+   processingsetting.DestinationFolder = SaveFolder
+   processingsetting.SubsetString = ''
+   processingsetting.MergedChannelsImage = True
+   processingsetting.IndividualChannelsImages = False
+   processingsetting.OriginalData = False
+   processingsetting.ApplyDisplayCurveAndChannelColor = True
+   processingsetting.BurnInGraphics = True
+   processingsetting.UseChannelNames = False
+   processingsetting.Resize = 1
+   ## XML file need not be generated
+   processingsetting.GenerateXMLFile = False
+   processingsetting.Prefix = ImageNameNoExtension
+   if time_series_num==1 and z_stack_num==1 and num_scenes==1:
+        processingsetting.CreateFolder = False
+   else:   
+        processingsetting.CreateFolder = True
+   processingsetting.Tiles = ZenTileMode.Retile
+   processingsetting.Columns = 1
+   processingsetting.Rows = 1
+   processingsetting.Overlap = 0
+   processingsetting.GenerateZipFile = False
+   Zen.Processing.Utilities.ExportSingleFile(image, processingsetting)
+   image.Close()
+print("The image is saved as JPEG in " + SaveFolder)
+##
+##################################################################################
+
+
+
+</Text>
+  <Author></Author>
+  <Description></Description>
+  <Keywords></Keywords>
+  <Row>10</Row>
+  <Column>12</Column>
+</Script>

@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Script Version="1.0">
+  <Language>Python</Language>
+  <Text>#######################################################
+## I M A G E 
+##
+## Macro name: Save all CZI images of a folder as JPG images
+## Required files: cells1.czi, cells2.czi, cells3.czi
+##
+## LOAD ALL CZI IMAGES, SAVE ALL IMAGES AS JPG
+##
+## Copyright (c) 2019 by Carl Zeiss Microscopy GmbH.
+## Permission is granted to use, modify and distribute this code,
+## as long as this copyright notice remains part of the code.
+#######################################################
+##
+## Remove all open documents
+Zen.Application.Documents.RemoveAll()
+##
+## activate IO library
+from System.IO import File, Directory, FileInfo, Path
+##
+## define path
+path = "C:\\OAD\\Input\\CZI Images\\Micron Scaled" 
+## Check, if path exists
+if (Directory.Exists(path)== False):
+    strMessage = 'Path: ' + path + ' does not exist!\nRestart macro and select an existing path!'
+    sys.exit(strMessage)
+## get file type
+itype = "*.czi"
+## get files
+files = Directory.GetFiles(path,itype)
+## Check, if image type exists
+if files.Length == 0: 
+    strMessage = 'Images of type : ' + itype + ' do not exist!\nRestart macro and select an existing image type!'
+    sys.exit(strMessage)
+##
+## loop over all CZI images in the folder
+## without display of each image in documents collection
+## load image, replace CZI with JPG, save image
+for i in range(0,files.Length): 
+    file = files[i] 
+    fileInfo = FileInfo(file) 
+    PathAndFile = Path.Combine(path, fileInfo.Name)
+    ext = fileInfo.Extension
+    newFileName=fileInfo.Name.Replace(ext,".JPG")
+    # The following command has to be activated, if each image should be loaded interactively 
+    # image = Zen.Application.LoadImage(PathAndFile,True)
+    image = Zen.Application.LoadImage(PathAndFile,False) 
+    # The following command has to be activated, if each image should be displayed 
+    # Zen.Application.Documents.Add(image) 
+    jpgPath = "C:\\OAD\\Output\\JPG Images"
+    newPathAndFile = Path.Combine(jpgPath, newFileName)
+    Zen.Application.Save(image,newPathAndFile)  
+##
+## Close last image (otherwise it cannot be deleted in explorer)
+image.Close()
+##   
+#######################################################
+</Text>
+  <Author></Author>
+  <Description></Description>
+  <ApplicationName></ApplicationName>
+  <Keywords></Keywords>
+  <Row>16</Row>
+  <Column>3</Column>
+</Script>
